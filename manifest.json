@@ -1,0 +1,20 @@
+{
+  "plugin_id": "napcat_large_file_transport",
+  "display_name": "NapCat 大文件传输",
+  "version": "1.0.0",
+  "author": "xgrbhc",
+  "description": "通过 NapCat stream 或临时 HTTP URL 发送 QQ 大文件，避免大 base64 单包导致 WebSocket 断连。",
+  "repo": "https://github.com/xgrbhc/KiraAI-Plugin-Napcat_Large_File_Transport.git",
+  "core_version": ">=2.23.0,<3.0.0",
+  "tags": ["adapter", "qq", "napcat", "file"],
+  "locales": {
+    "zh": {
+      "display_name": "NapCat 大文件传输",
+      "description": "通过 NapCat stream 或临时 HTTP URL 发送 QQ 大文件，避免大 base64 单包导致 WebSocket 断连。"
+    },
+    "en": {
+      "display_name": "NapCat Large File Transport",
+      "description": "Send large QQ files through NapCat stream or temporary HTTP URLs to avoid large base64 WebSocket payloads."
+    }
+  }
+}

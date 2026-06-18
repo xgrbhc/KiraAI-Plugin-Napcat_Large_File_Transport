@@ -1,0 +1,80 @@
+{
+  "enabled": {
+    "name": "启用插件",
+    "type": "switch",
+    "default": true,
+    "hint": "默认开启即可。关闭后插件不会接管 QQ/NapCat 文件发送，KiraAI 会回到原始发送逻辑。"
+  },
+  "intercept_existing_file_tag": {
+    "name": "透明接管 <file>",
+    "type": "switch",
+    "default": true,
+    "hint": "建议保持开启。开启后，LLM 继续使用普通 `<file>` 或 `<file type=\"video\">` 时，插件也会自动拦截大文件，避免原 QQ adapter 把本地大文件转成 base64 单包发送。"
+  },
+  "usage_prompt": {
+    "name": "LLM 使用提示词",
+    "type": "markdown",
+    "default": "当你需要通过 QQ/NapCat 发送文件时：普通小文件可以使用 `<file>path_or_url</file>`；明确是大文件、视频、压缩包或可能超过数 MB 的文件时，优先使用 `<napcat_file type=\"file\">path_or_url</napcat_file>`，视频可使用 `<napcat_file type=\"video\">path_or_url</napcat_file>`。不要把大文件内容转换成 base64 文本输出，也不要把文件内容直接粘贴到回复里。文件路径可以是绝对路径、`data/files/...`、`data/temp/...` 或 HTTP/HTTPS URL。发送文件时，每个 `<file>` 或 `<napcat_file>` 必须单独放在一个 `<msg>` 中；不要在同一个 `<msg>` 里混入解释文字、emoji、多个文件标签或其他标签。",
+    "hint": "这是写给 LLM 的规则，不是写给用户看的使用说明。一般不需要改。若要微调，请保留两点：大文件优先 `<napcat_file>`；不要输出 base64。"
+  },
+  "stream_enabled": {
+    "name": "启用 upload_file_stream",
+    "type": "switch",
+    "default": true,
+    "hint": "推荐开启，这是最优路径。大本地文件会被分片上传到 NapCat 临时目录，再由 NapCat 发送文件。日志里出现 `stream transport finished ok=True` 就说明已经走通，通常不需要配置 public_base_url。"
+  },
+  "http_fallback_enabled": {
+    "name": "启用 HTTP 兜底",
+    "type": "switch",
+    "default": true,
+    "hint": "建议开启。只有当 stream 不可用、失败，或你临时关闭 stream 测试时才会用到。HTTP 兜底不是让 LLM 找外部链接，而是插件把本地文件临时变成一个带 token 的下载 URL 给 NapCat 拉取。"
+  },
+  "public_base_url": {
+    "name": "KiraAI 外部访问地址",
+    "type": "string",
+    "default": "",
+    "hint": "只在 HTTP 兜底时需要填写。这里填的不是 NapCat 地址，而是 NapCat 能访问到的 KiraAI WebUI/API 地址。例：KiraAI 在宿主机、NapCat 在 Docker 里常用 `http://host.docker.internal:5267`；同一台 Windows 机器可试 `http://127.0.0.1:5267`；远程/反代部署填 `https://你的域名`。如果 stream 已成功，可先留空。"
+  },
+  "stream_threshold_mb": {
+    "name": "接管阈值 MB",
+    "type": "integer",
+    "default": 8,
+    "hint": "文件达到这个大小后插件会接管发送。默认 8MB 较保守，适合避免误走 base64。新手不建议改大；如果改得太大，小一些但仍可能危险的文件会继续走原 adapter。"
+  },
+  "base64_max_mb": {
+    "name": "base64 放行上限 MB",
+    "type": "integer",
+    "default": 20,
+    "hint": "base64/data_url 超过这个大小时，插件会禁止回退到原始 base64 发送，避免 NapCat WebSocket 大包断连。不要为了“强行发送”把它调大。"
+  },
+  "chunk_size_kb": {
+    "name": "stream 分片大小 KB",
+    "type": "integer",
+    "default": 512,
+    "hint": "upload_file_stream 每片读取的原始字节大小。默认 512KB 通常够稳。网络很差可适当调小；局域网很稳可适当调大，但不建议新手修改。"
+  },
+  "transfer_timeout_sec": {
+    "name": "传输超时秒数",
+    "type": "integer",
+    "default": 300,
+    "hint": "单次 NapCat API 调用等待时间。大文件或远程 NapCat 较慢时可调大，例如 600。超时不代表插件一定失败，先看日志里的 strategy/action/err。"
+  },
+  "download_token_ttl_sec": {
+    "name": "下载 token 有效期秒数",
+    "type": "integer",
+    "default": 600,
+    "hint": "HTTP 兜底临时下载链接的有效期，默认 10 分钟。远程 NapCat 下载慢、大文件很大时可调大，例如 1800。token 过期后不能继续下载。"
+  },
+  "qq_adapter_names": {
+    "name": "限定 adapter 名称",
+    "type": "list",
+    "default": [],
+    "hint": "新手请留空，插件会自动匹配所有 QQ/NapCat adapter。只有你同时配置了多个 QQ adapter，并且只想让其中某几个启用大文件插件时，才填写 adapter name，例如 `QQ`。"
+  },
+  "debug_log": {
+    "name": "调试日志",
+    "type": "switch",
+    "default": false,
+    "hint": "第一次测试建议开启。你会在日志里看到 `Large media strategy start`、`upload_file_stream start`、`stream transport finished` 或 `http transport finished`。确认稳定后可关闭，减少日志噪音。"
+  }
+}
